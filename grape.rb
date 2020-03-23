@@ -100,6 +100,9 @@ TXT
   run 'rm ./spec/rails_helper.rb'
   run 'curl -L https://raw.githubusercontent.com/MaximeRDY/rails-templates/master/rails_helper.rb > .rubocop.yml'
 
+  # Docker-compose
+  ########################################
+  run 'curl -L https://raw.githubusercontent.com/MaximeRDY/rails-templates/master/docker-compose.yml > docker-compose.yml'
 
   # Git
   ########################################
@@ -109,4 +112,6 @@ TXT
 
   # Fix puma config
   gsub_file('config/puma.rb', 'pidfile ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }', '# pidfile ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }')
+
+  run 'echo: "Do not forget to change docker-compose.yml"'
 end
