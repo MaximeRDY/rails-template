@@ -11,7 +11,6 @@ Get a minimal rails 4.1 app ready to be deployed on Heroku with Grape Api and de
 ```bash
 rails new \
   --database postgresql \
-  --webpack \
   -m https://raw.githubusercontent.com/maximerdy/rails-templates/master/grape.rb \
   CHANGE_THIS_TO_YOUR_RAILS_APP_NAME
 ```
