@@ -95,10 +95,18 @@ TXT
   ########################################
   run 'curl -L https://raw.githubusercontent.com/MaximeRDY/rails-templates/master/.rubocop.yml > .rubocop.yml'
 
+  # Grape in Application
+  ########################################
+  inject_into_file 'config/application', after: 'class Application < Rails::Application' do <<-Ruby
+    config.paths.add File.join('app', 'api'), glob: File.join('**', '*.rb')
+    config.autoload_paths += Dir[Rails.root.join('app', 'api', '*')]
+  Ruby
+  end
+
   # Test
   ########################################
   run 'rm ./spec/rails_helper.rb'
-  run 'curl -L https://raw.githubusercontent.com/MaximeRDY/rails-templates/master/rails_helper.rb > .rubocop.yml'
+  run 'curl -L https://raw.githubusercontent.com/MaximeRDY/rails-templates/master/rails_helper.rb > ./spec/rails_helper.rb'
 
   # Docker-compose
   ########################################
