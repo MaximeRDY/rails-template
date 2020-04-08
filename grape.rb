@@ -1,5 +1,8 @@
 run "if uname | grep -q 'Darwin'; then pgrep spring | xargs kill -9; fi"
 
+file '.ruby-gemset', @name, force: true
+file '.ruby-version', "ruby-#{RUBY_VERSION}"
+
 # GEMFILE
 ########################################
 run 'rm Gemfile'
@@ -8,12 +11,16 @@ source 'https://rubygems.org'
 ruby '#{RUBY_VERSION}'
 
 gem 'pg', '~> 0.21'
-gem 'puma'
 gem 'rails', '#{Rails.version}'
 
 gem 'grape'
 gem 'grape-entity'
+gem 'grape-swagger-entity'
+gem 'grape-swagger'
 gem 'grape_on_rails_routes'
+
+gem 'puma'
+gem 'thin'
 
 group :development do
   gem 'web-console', '>= 3.3.0'
@@ -71,9 +78,14 @@ environment generators
 # AFTER BUNDLE
 ########################################
 after_bundle do
+  # Add Rspec
+  run 'rails generate rspec:install'
+
+  # Run docker-compose
+  # run 'docker-compose up -d'
   # Generators: db + simple form + pages controller
   ########################################
-  rails_command 'db:drop db:create db:migrate'
+  # rails_command 'db:drop db:create db:migrate'
 
   # Git ignore
   ########################################
@@ -97,7 +109,7 @@ TXT
 
   # Grape in Application
   ########################################
-  inject_into_file 'config/application', after: 'class Application < Rails::Application' do <<-Ruby
+  inject_into_file 'config/application.rb', after: 'class Application < Rails::Application' do <<-Ruby
     config.paths.add File.join('app', 'api'), glob: File.join('**', '*.rb')
     config.autoload_paths += Dir[Rails.root.join('app', 'api', '*')]
   Ruby
@@ -110,7 +122,7 @@ TXT
 
   # Docker-compose
   ########################################
-  run 'curl -L https://raw.githubusercontent.com/MaximeRDY/rails-templates/master/docker-compose.yml > docker-compose.yml'
+  run "curl -L https://raw.githubusercontent.com/MaximeRDY/rails-template/master/docker-compose.yml | awk '{gsub(/CHANGE_ME/, \"#{@name}\")  ; print }' > docker-compose.yml"
 
   # Git
   ########################################
@@ -119,7 +131,5 @@ TXT
   git commit: "-m 'Initial commit with grape template from https://github.com/MaximeRDY/rails-templates'"
 
   # Fix puma config
-  gsub_file('config/puma.rb', 'pidfile ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }', '# pidfile ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }')
-
-  run 'echo: "Do not forget to change docker-compose.yml"'
+  # gsub_file('config/puma.rb', 'pidfile ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }', '# pidfile ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }')
 end
